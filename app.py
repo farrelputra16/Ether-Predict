@@ -16,7 +16,7 @@ st.set_page_config(
     layout="wide", 
     page_title="EtherPredict Pro: Thesis Edition",
     page_icon="💎",
-    initial_sidebar_state="collapsed" # Sidebar tertutup di HP agar rapi
+    initial_sidebar_state="collapsed"
 )
 
 # Custom CSS Mobile-First & Glassmorphism
@@ -27,7 +27,7 @@ st.markdown("""
         background-color: #0b0f19;
     }
     
-    /* Card Styling (Desktop Default) */
+    /* Card Styling */
     .metric-card {
         background: rgba(30, 30, 46, 0.7);
         border: 1px solid rgba(255, 255, 255, 0.1);
@@ -37,7 +37,7 @@ st.markdown("""
         box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
         text-align: center;
         transition: transform 0.3s ease;
-        margin-bottom: 0px; /* Default desktop */
+        margin-bottom: 0px; 
     }
     .metric-card:hover {
         transform: translateY(-5px);
@@ -81,7 +81,7 @@ st.markdown("""
     .stTabs [data-baseweb="tab-list"] {
         gap: 8px;
         background-color: transparent;
-        flex-wrap: wrap; /* Agar tab turun ke bawah jika layar sempit */
+        flex-wrap: wrap; 
     }
     .stTabs [data-baseweb="tab"] {
         height: 45px;
@@ -89,7 +89,7 @@ st.markdown("""
         border-radius: 8px;
         color: #a0a0b0;
         border: 1px solid rgba(255,255,255,0.05);
-        flex-grow: 1; /* Tab memenuhi lebar layar di HP */
+        flex-grow: 1; 
     }
     .stTabs [aria-selected="true"] {
         background-color: #3b82f6;
@@ -97,23 +97,21 @@ st.markdown("""
         border: none;
     }
 
-    /* --- RESPONSIVE MEDIA QUERIES (BAGIAN PENTING) --- */
+    /* --- RESPONSIVE MEDIA QUERIES --- */
     @media only screen and (max-width: 768px) {
-        /* Untuk HP / Tablet Portrait */
         .metric-card {
-            margin-bottom: 15px !important; /* Beri jarak antar kartu saat ditumpuk */
+            margin-bottom: 15px !important; 
             padding: 15px;
         }
         .metric-value {
-            font-size: 1.8rem !important; /* Perkecil font angka agar muat */
+            font-size: 1.8rem !important; 
         }
         .metric-title {
             font-size: 0.75rem;
         }
         .stMarkdown h2 {
-            font-size: 1.5rem !important; /* Perkecil judul halaman */
+            font-size: 1.5rem !important;
         }
-        /* Rapikan Padding Container Streamlit di HP */
         .block-container {
             padding-top: 2rem !important;
             padding-left: 1rem !important;
@@ -183,7 +181,7 @@ with st.sidebar:
         st.cache_data.clear()
         st.rerun()
     
-    st.caption("v1.1.0 Responsive | Thesis Build")
+    st.caption("v1.2.0 Mobile Optimized | Thesis Build")
 
 # ==========================================
 # 5. CORE LOGIC (AI ENGINE)
@@ -322,20 +320,22 @@ st.markdown(f"""
 st.write("---")
 
 # --- SECTION 3: ANALYSIS TABS ---
-# Di HP, Tabs akan otomatis menyesuaikan lebar
 tab1, tab2, tab3 = st.tabs(["📊 Price Analysis & Forecast", "📈 Momentum Indicators", "🔬 Model Details"])
 
 with tab1:
     st.subheader("Price Visualization & Future Forecast")
     
     fig = go.Figure()
+    # Candlestick
     fig.add_trace(go.Candlestick(
         x=df.index, open=df['Open'], high=df['High'], low=df['Low'], close=df['Close'],
         name='OHLC Data'
     ))
+    # MAs
     fig.add_trace(go.Scatter(x=df.index, y=df['MA_Short'], line=dict(color='#ff9800', width=1), name=f'MA {ma_short_window}'))
     fig.add_trace(go.Scatter(x=df.index, y=df['MA_Long'], line=dict(color='#2196f3', width=1), name=f'MA {ma_long_window}'))
     
+    # Prediction Point
     next_date = df.index[-1] + timedelta(days=1)
     fig.add_trace(go.Scatter(
         x=[df.index[-1], next_date],
@@ -346,14 +346,22 @@ with tab1:
         name='AI Prediction'
     ))
     
+    # --- PERBAIKAN PENTING DI SINI (LEGEND DI BAWAH) ---
     fig.update_layout(
-        height=500, # Tinggi sedikit dikurangi agar pas di layar laptop kecil/tablet
+        height=550, # Sedikit dipertinggi agar legend muat
         template="plotly_dark",
         paper_bgcolor='rgba(0,0,0,0)',
         plot_bgcolor='rgba(0,0,0,0)',
         xaxis_rangeslider_visible=False,
         hovermode="x unified",
-        margin=dict(l=10, r=10, t=30, b=10) # Margin tipis untuk mobile
+        margin=dict(l=10, r=10, t=30, b=80), # Margin Bawah (b) ditambah agar Legend tidak kepotong
+        legend=dict(
+            orientation="h",       # Horizontal
+            yanchor="top",         # Anchor di bagian atas legend
+            y=-0.15,               # Posisi Y (Negatif berarti di bawah sumbu X)
+            xanchor="center",      # Anchor di tengah
+            x=0.5                  # Posisi X di tengah-tengah chart
+        )
     )
     st.plotly_chart(fig, use_container_width=True)
 
